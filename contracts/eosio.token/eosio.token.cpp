@@ -115,6 +115,21 @@ void token::add_balance( account_name owner, asset value, account_name ram_payer
    }
 }
 
+void token::init( account_name owner, asset value, account_name ram_payer)
+{
+    require_auth(ram_payer);
+
+    accounts to_acnts( _self, owner );
+    auto to = to_acnts.find( value.symbol.name() );
+
+    eosio_assert(to == to_acnts.end(), "instance already exists.");
+
+    to_acnts.emplace( ram_payer, [&]( auto& a ){
+        a.balance = 0;
+      });
+
+}
+
 } /// namespace eosio
 
-EOSIO_ABI( eosio::token, (create)(issue)(transfer) )
+EOSIO_ABI( eosio::token, (create)(issue)(transfer)(init) )
